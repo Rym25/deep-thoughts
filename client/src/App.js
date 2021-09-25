@@ -15,13 +15,25 @@ import SingleThought from './pages/SingleThought';
 import Profile from './pages/Profile';
 import Signup from './pages/Signup';
 
+import { setContext } from '@apollo/client/link/context';
+
 // reroutes the react app to localhost: 3001
 const httpLink = createHttpLink({
   uri: '/graphql'
 });
 
+const authLink = setContext(({ headers }) => {
+  const token = localStorage.getItem('id_token');
+  return {
+    headers: {
+      ...headers,
+      Authorization: token ? `Bearer ${token}` : '',
+    },
+  };
+});
+
 const client = new ApolloClient({
-  link: httpLink,
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache()
 })
 
